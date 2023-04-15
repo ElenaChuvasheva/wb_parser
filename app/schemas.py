@@ -1,13 +1,18 @@
 from pydantic import BaseModel
 
 
-class ItemBase(BaseModel):
+class ItemSchema(BaseModel):
+    nm_id: int
     name: str
+    brand: str | None
+    brand_id: int | None
+    site_brand_id: int | None
+    supplier_id: int | None
+    sale: int | None
+    price: int | None
+    sale_price: int | None
+    rating: int | None
+    feedbacks: int | None
 
-
-class ItemCreate(ItemBase):
-    pass
-
-
-class Item(ItemBase):
-    id: int
+    class Config:
+        orm_mode = True
