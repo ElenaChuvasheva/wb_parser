@@ -2,7 +2,7 @@ from fastapi import Depends, FastAPI, Response, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app import crud, exceptions, models, schemas
+from app import crud, exceptions, models, schemas, wildberries
 from app.database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
@@ -24,19 +24,20 @@ async def root():
 
 
 @app.post('/items/', response_model=schemas.ItemSchema)
-def create_item(item: schemas.ItemSchema, db: Session = Depends(get_db)):
-    try:
-        db_item = crud.create_item(db, item)
-        return db_item
-    except IntegrityError as error:
-        raise exceptions.BadRequestException(detail=str(error))
+def update_or_create_item(item_input: schemas.ItemInput,
+                          db: Session = Depends(get_db)):
+    wb_result = wildberries.get_from_wb(item_input.nm_id)
+    colors_schemas_list = wb_result[0]
+    item = wb_result[1]
+    db_item = crud.upsert_item(db, item, colors_schemas_list)
+    return db_item
 
 
 @app.get('/items/{nm_id}/', response_model=schemas.ItemSchema)
 def read_item(nm_id: int, db: Session = Depends(get_db)):
     db_item = crud.get_item(db, nm_id)
     if db_item is None:
-        raise exceptions.ItemNotFoundException
+        raise exceptions.ItemNotFoundDBException
     return db_item
 
 
@@ -50,5 +51,5 @@ def read_items(skip: int = 0, limit: int = 100,
 def delete_item(nm_id: int, db: Session = Depends(get_db)):
     item_number = crud.delete_item(db, nm_id)
     if item_number == 0:
-        raise exceptions.ItemNotFoundException
+        raise exceptions.ItemNotFoundDBException
     return Response(status_code=status.HTTP_204_NO_CONTENT)
