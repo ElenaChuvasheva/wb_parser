@@ -1,13 +1,27 @@
 from fastapi import Depends, FastAPI, Response, status
-from sqlalchemy.exc import IntegrityError
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from app import crud, exceptions, models, schemas, wildberries
-from app.database import SessionLocal, engine
-
-models.Base.metadata.create_all(bind=engine)
+from app import crud, exceptions, schemas, wildberries
+from app.database import SessionLocal
 
 app = FastAPI()
+
+origins = [
+    'http://localhost',
+    'http://localhost:3000',
+    'https://www.google.com'
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=False,
+    allow_methods=['GET', 'POST', 'DELETE'],
+    allow_headers=['Content-Type', 'Access-Control-Allow-Headers',
+                   'Access-Control-Allow-Origin',
+                   'Authorization'],
+)
 
 
 def get_db():

@@ -19,29 +19,9 @@ def upsert_item(db: Session, item: schemas.ItemUpSert,
             color_models[index] = db.merge(color)
             db_colors.append(schemas.ColorSchema.from_orm(color))
         model_item.colors = color_models
-
-#        print(db.execute(insert(models.Color).on_conflict_do_nothing(
-#            index_elements=['id']), color_models))
-
-    # old_color_schemas = [schemas.ColorSchema.from_orm(
-#        color) for color in model_item.colors]
-#    print(old_color_schemas)
-#    model_item.colors = color_models
-#    db.add(model_item)
-
-    # db_item = schemas.ItemSchema.from_orm(model_item)
     db_item = schemas.ItemSchema.from_orm(model_item)
     db.commit()
     return db_item
-
-
-def get_or_create_colors(db: Session,
-                         colors_schemas_list: list[schemas.ColorSchema]):
-    pass
-#    color_ids = [color_schema.id for color_schema in colors_schemas_list]
-#    for each in db.query(models.Color).filter(models.Color.id.in_(color_ids)).all():
-    # db.execute(insert(models.Color), colors_schemas_list)
-    # db.commit()
 
 
 def get_item(db: Session, nm_id: int):

@@ -4,3 +4,4 @@ sqlalchemy==2.0.9
 python-dotenv==1.0.0
 psycopg2-binary==2.9.6
 requests==2.28.2
+alembic==1.10.3
